@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>NestJS Chat Demo</title>
+    <style>
+      body {
+        font-family: Arial;
+        padding: 1rem;
+      }
+      #messages {
+        border: 1px solid #ddd;
+        height: 300px;
+        overflow: auto;
+        padding: 0.5rem;
+      }
+      .msg {
+        margin-bottom: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Realtime Chat</h2>
+    <label>Username: <input id="username" value="guest" /></label>
+    <label>Room: <input id="room" value="general" /></label>
+    <button id="join">Join</button>
+    <button id="leave">Leave</button>
+    <div id="messages"></div>
+    <form id="form">
+      <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script>
+      const socket = io('http://localhost:3000');
+      const messages = document.getElementById('messages');
+      const usernameInput = document.getElementById('username');
+      const roomInput = document.getElementById('room');
+      let currentRoom = roomInput.value;
+
+      document.getElementById('join').onclick = () => {
+        currentRoom = roomInput.value;
+        socket.emit('joinRoom', { room: currentRoom });
+        fetchHistory(currentRoom);
+      };
+
+      document.getElementById('leave').onclick = () => {
+        socket.emit('leaveRoom', { room: currentRoom });
+      };
+
+      socket.on('message', (msg) => addMessage(msg));
+
+      document.getElementById('form').onsubmit = (e) => {
+        e.preventDefault();
+        const content = document.getElementById('input').value.trim();
+        if (!content) return;
+        socket.emit('message', {
+          username: usernameInput.value || 'guest',
+          room: currentRoom,
+          content,
+        });
+        document.getElementById('input').value = '';
+      };
+
+      async function fetchHistory(room) {
+        const res = await fetch(
+          `http://localhost:3000/chat/history?room=${room}&limit=50`,
+        );
+        const data = await res.json();
+        messages.innerHTML = '';
+        data.forEach(addMessage);
+      }
+
+      function addMessage(msg) {
+        const el = document.createElement('div');
+        el.className = 'msg';
+        el.innerHTML = `<strong>${msg.username}</strong>: ${msg.content} <small>${new Date(msg.createdAt).toLocaleTimeString()}</small>`;
+        messages.appendChild(el);
+        messages.scrollTop = messages.scrollHeight;
+      }
+    </script>
+  </body>
+</html>
