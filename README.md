@@ -1,6 +1,6 @@
 # Build a Real-Time Chat App with NestJS, WebSocket (Socket.IO) & MongoDB
 
-Read the full tutorial [here]().
+Read the full tutorial [here](https://www.djamware.com/post/6896b77cf1deb454440919f0/build-a-realtime-chat-app-with-nestjs-websocket-socketio-mongodb).
 
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
